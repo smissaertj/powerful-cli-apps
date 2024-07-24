@@ -16,7 +16,7 @@ func main() {
 	fmt.Println(count(os.Stdin, *lines))
 }
 
-func count(reader io.Reader, countLines bool) int {
+func count(reader io.Reader, countLines bool) (int, error) {
 
 	// Use a scanner to read text from an io.Reader interface
 	scanner := bufio.NewScanner(reader)
@@ -34,6 +34,10 @@ func count(reader io.Reader, countLines bool) int {
 		wc++
 	}
 
+	if err := scanner.Err(); err != nil {
+		return 0, fmt.Errorf("failed reading standard input: %w", err)
+	}
+
 	// return the total
-	return wc
+	return wc, nil
 }
