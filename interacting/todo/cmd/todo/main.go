@@ -27,11 +27,7 @@ func main() {
 
 	switch {
 	case *list:
-		for _, item := range *l {
-			if !item.Done {
-				fmt.Println(item.Task)
-			}
-		}
+		fmt.Print(l)
 	case *task != "":
 		l.Add(*task)
 		if err := l.Save(todoFileName); err != nil {

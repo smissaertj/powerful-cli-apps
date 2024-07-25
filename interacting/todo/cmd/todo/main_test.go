@@ -72,7 +72,7 @@ func TestTodoCli(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		expected := task + "\n"
+		expected := fmt.Sprintf("X 1: %s\n", task) // We are expecting a completed single task here!
 		if expected != string(out) {
 			t.Errorf("expected %q got %q instead\n", expected, string(out))
 		}
