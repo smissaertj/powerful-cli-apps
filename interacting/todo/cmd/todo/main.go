@@ -14,10 +14,11 @@ var todoFileName = ".todo.json"
 
 func main() {
 	// Parse command line flags
-	add := flag.Bool("add", false, "Task to be included in the ToDo list.")
+	add := flag.Bool("add", false, "Add Todo task to the list.")
 	list := flag.Bool("list", false, "List all the ToDo tasks.")
-	complete := flag.Int("complete", 0, "Item to be completed.")
-	deleteTask := flag.Int("delete", 0, "Item to be deleted.")
+	listIncomplete := flag.Bool("list-incomplete", false, "List incomplete ToDo tasks only.")
+	complete := flag.Int("complete", 0, "Mark Todo task as completed")
+	deleteTask := flag.Int("delete", 0, "Delete Todo task.")
 	flag.Parse()
 
 	// Check if the user defined an env var for a custom todoFileName
@@ -37,6 +38,14 @@ func main() {
 	switch {
 	case *list:
 		fmt.Print(l)
+	case *listIncomplete:
+		incompleteTodoList := &todo.List{}
+		for _, item := range *l {
+			if !item.Done {
+				incompleteTodoList.Add(item.Task)
+			}
+		}
+		fmt.Print(incompleteTodoList)
 	case *add:
 		task, err := getTask(os.Stdin, flag.Args()...)
 		if err != nil {
