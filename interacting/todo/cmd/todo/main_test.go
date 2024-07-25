@@ -100,6 +100,20 @@ func TestTodoCli(t *testing.T) {
 		}
 	})
 
+	t.Run("CompleteTask2", func(t *testing.T) {
+		cmd := exec.Command(cmdPath, "-complete", "2")
+		if err := cmd.Run(); err != nil {
+			t.Fatal(err)
+		}
+	})
+
+	t.Run("IncompleteTask2", func(t *testing.T) {
+		cmd := exec.Command(cmdPath, "-complete", "2")
+		if err := cmd.Run(); err != nil {
+			t.Fatal(err)
+		}
+	})
+
 	t.Run("ListTask", func(t *testing.T) {
 		cmd := exec.Command(cmdPath, "-list")
 		out, err := cmd.CombinedOutput()
