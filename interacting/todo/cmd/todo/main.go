@@ -17,7 +17,7 @@ func main() {
 	add := flag.Bool("add", false, "Add Todo task to the list.")
 	list := flag.Bool("list", false, "List all the ToDo tasks.")
 	listIncomplete := flag.Bool("list-incomplete", false, "List incomplete ToDo tasks only.")
-	complete := flag.Int("complete", 0, "Mark Todo task as completed")
+	complete := flag.Int("complete", 0, "Toggle Todo task as completed or incomplete")
 	deleteTask := flag.Int("delete", 0, "Delete Todo task.")
 	flag.Parse()
 

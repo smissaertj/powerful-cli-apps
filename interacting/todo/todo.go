@@ -36,7 +36,12 @@ func (l *List) Complete(i int) error {
 	}
 
 	// Adjust the index for 0-based index
-	ls[i-1].Done = true
+	if ls[i-1].Done {
+		ls[i-1].Done = false
+	} else {
+		ls[i-1].Done = true
+
+	}
 	ls[i-1].CompletedAt = time.Now()
 
 	return nil
