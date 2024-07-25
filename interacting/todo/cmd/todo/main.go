@@ -1,17 +1,20 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"github.com/smissaertj/powerful-cli-apps/interacting/todo"
+	"io"
 	"os"
+	"strings"
 )
 
 var todoFileName = ".todo.json"
 
 func main() {
 	// Parse command line flags
-	task := flag.String("task", "", "Task to be included in the ToDo list.")
+	add := flag.Bool("add", false, "Task to be included in the ToDo list.")
 	list := flag.Bool("list", false, "List all the ToDo tasks.")
 	complete := flag.Int("complete", 0, "Item to be completed.")
 	flag.Parse()
@@ -33,8 +36,15 @@ func main() {
 	switch {
 	case *list:
 		fmt.Print(l)
-	case *task != "":
-		l.Add(*task)
+	case *add:
+		task, err := getTask(os.Stdin, flag.Args()...)
+		if err != nil {
+			_, _ = fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+
+		l.Add(task)
+
 		if err := l.Save(todoFileName); err != nil {
 			_, _ = fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
@@ -52,4 +62,25 @@ func main() {
 		_, _ = fmt.Fprintln(os.Stderr, "Invalid flag provided")
 		os.Exit(1)
 	}
+}
+
+func getTask(r io.Reader, args ...string) (string, error) { // variadic function accepting a variable number of arguments
+	// Check if arguments were provided
+	if len(args) > 0 {
+		return strings.Join(args, " "), nil
+	}
+
+	// Read the task from the reader
+	s := bufio.NewScanner(r)
+	s.Scan()
+	if err := s.Err(); err != nil {
+		return "", err
+	}
+
+	// Ensure that we don't have a blank task
+	if len(s.Text()) == 0 {
+		return "", fmt.Errorf("task cannot be blank")
+	}
+
+	return s.Text(), nil
 }
