@@ -6,7 +6,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
-	"strings"
 	"testing"
 )
 
@@ -24,16 +23,21 @@ func TestMain(m *testing.M) {
 
 	build := exec.Command("go", "build", "-o", binName)
 	if err := build.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "cannot build tool %s: %s", binName, err)
+		_, _ = fmt.Fprintf(os.Stderr, "cannot build tool %s: %s", binName, err)
 	}
 
 	fmt.Println("Running tests...")
 	result := m.Run()
 
 	fmt.Println("Cleaning up...")
-	os.Remove(binName)
-	os.Remove(fileName)
+	if err := os.Remove(binName); err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "cannot remove tool %s: %s", binName, err)
+	}
 
+	if err := os.Remove(fileName); err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "cannot remove file %s: %s", fileName, err)
+	}
+	fmt.Println("Clean up successful!")
 	os.Exit(result)
 }
 
@@ -48,14 +52,21 @@ func TestTodoCli(t *testing.T) {
 	cmdPath := filepath.Join(dir, binName)
 
 	t.Run("AddNewTak", func(t *testing.T) {
-		cmd := exec.Command(cmdPath, strings.Split(task, " ")...)
+		cmd := exec.Command(cmdPath, "-task", task)
+		if err := cmd.Run(); err != nil {
+			t.Fatal(err)
+		}
+	})
+
+	t.Run("CompleteTask", func(t *testing.T) {
+		cmd := exec.Command(cmdPath, "-complete", "1")
 		if err := cmd.Run(); err != nil {
 			t.Fatal(err)
 		}
 	})
 
 	t.Run("ListTask", func(t *testing.T) {
-		cmd := exec.Command(cmdPath)
+		cmd := exec.Command(cmdPath, "-list")
 		out, err := cmd.CombinedOutput()
 		if err != nil {
 			t.Fatal(err)
