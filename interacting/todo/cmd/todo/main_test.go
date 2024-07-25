@@ -85,6 +85,21 @@ func TestTodoCli(t *testing.T) {
 		}
 	})
 
+	task3 := "test task number 3"
+	t.Run("AddNewTaskFromArguments", func(t *testing.T) {
+		cmd := exec.Command(cmdPath, "-add", task3)
+		if err := cmd.Run(); err != nil {
+			t.Fatal(err)
+		}
+	})
+
+	t.Run("DeleteTask", func(t *testing.T) {
+		cmd := exec.Command(cmdPath, "-delete", "3")
+		if err := cmd.Run(); err != nil {
+			t.Fatal(err)
+		}
+	})
+
 	t.Run("ListTask", func(t *testing.T) {
 		cmd := exec.Command(cmdPath, "-list")
 		out, err := cmd.CombinedOutput()

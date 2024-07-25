@@ -17,6 +17,7 @@ func main() {
 	add := flag.Bool("add", false, "Task to be included in the ToDo list.")
 	list := flag.Bool("list", false, "List all the ToDo tasks.")
 	complete := flag.Int("complete", 0, "Item to be completed.")
+	deleteTask := flag.Int("delete", 0, "Item to be deleted.")
 	flag.Parse()
 
 	// Check if the user defined an env var for a custom todoFileName
@@ -51,6 +52,15 @@ func main() {
 		}
 	case *complete > 0:
 		if err := l.Complete(*complete); err != nil {
+			_, _ = fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		if err := l.Save(todoFileName); err != nil {
+			_, _ = fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+	case *deleteTask > 0:
+		if err := l.Delete(*deleteTask); err != nil {
 			_, _ = fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
