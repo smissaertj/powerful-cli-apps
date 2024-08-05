@@ -36,7 +36,7 @@ func main() {
 	}
 
 	if err := run(*fileName); err != nil {
-		fmt.Println(os.Stderr, err)
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
