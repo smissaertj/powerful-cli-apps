@@ -4,11 +4,10 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
-	"os"
-	"path/filepath"
-
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/russross/blackfriday/v2"
+	"io"
+	"os"
 )
 
 const header = `<!DOCTYPE html>
@@ -32,13 +31,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := run(*fileName); err != nil {
+	if err := run(*fileName, os.Stdout); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
 
-func run(fileName string) error {
+func run(fileName string, out io.Writer) error {
 	// Read all the data from the input file and check for errors
 	input, err := os.ReadFile(fileName)
 	if err != nil {
@@ -46,8 +45,17 @@ func run(fileName string) error {
 	}
 
 	htmlData := parseContent(input)
-	outName := fmt.Sprintf("%s.html", filepath.Base(fileName))
-	fmt.Println(outName)
+	// Create temporary file and check for errors
+	temp, err := os.CreateTemp("", "mdp*.html")
+	if err != nil {
+		return err
+	}
+	if err := temp.Close(); err != nil {
+		return err
+	}
+
+	outName := temp.Name()
+	fmt.Fprintln(out, outName)
 
 	return saveHTML(outName, htmlData)
 }
