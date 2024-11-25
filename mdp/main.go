@@ -11,22 +11,19 @@ import (
 	"github.com/russross/blackfriday/v2"
 )
 
-const (
-	header = `<!DOCTYPE html>
-	<html>
-		<head>
-			<meta charset="utf-8" http-equiv="content-type" content="text/html">
-			<title>Markdown Preview Tool</title>
-		</head>
-		<body>`
+const header = `<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>Markdown Preview Tool</title>
+</head>
+<body>`
 
-	footer = `
-		</body>
-	</html>`
-)
+const footer = `</body>
+</html>`
 
 func main() {
-	fileName := flag.String("file", "", "Mardown file to preview.")
+	fileName := flag.String("file", "", "Markdown file to preview.")
 	flag.Parse()
 
 	// The user didn't provide input file, show usage'
@@ -58,17 +55,25 @@ func run(fileName string) error {
 func parseContent(input []byte) []byte {
 	// Parse the markdown file through Blackfriday and Bluemonday
 	output := blackfriday.Run(input)
-	body := bluemonday.UGCPolicy().SanitizeBytes(output)
+	sanitizedBody := bluemonday.UGCPolicy().SanitizeBytes(output)
+
+	// Replace newlines in code blocks with trailing space
+	sanitizedBody = bytes.ReplaceAll(sanitizedBody, []byte("\n</code>"), []byte(" </code>"))
 
 	// Create a buffer of bytes to write to file
 	var buffer bytes.Buffer
 
 	// Write HTML to bytes buffer, combining the header, body and footer.
 	buffer.WriteString(header)
-	buffer.Write(body)
+	buffer.Write(sanitizedBody)
 	buffer.WriteString(footer)
 
-	return buffer.Bytes()
+	return formatHTML(buffer.Bytes())
+}
+
+func formatHTML(input []byte) []byte {
+	formatted := bytes.ReplaceAll(input, []byte(">\n<"), []byte("><"))
+	return bytes.TrimSpace(formatted)
 }
 
 func saveHTML(outName string, data []byte) error {
